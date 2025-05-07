@@ -1,31 +1,25 @@
-import userData from '../fixtures/user-data.json'
+import userData from '../fixtures/user-data.json';
+import LoginPage from '../pages/loginPage';
+import DashboardPage from '../pages/dashboardPage';
+import MenuPage from '../pages/menuPage';
 
 describe('Orange HRM Tests', () => {
   
   const selectorList = {
-    usernameField: "[name='username']",
-    passwordField: "[name='password']",
-    loginButton: "[type='submit']",
-    selectionTitleTopBar: ".oxd-topbar-header-breadcrumb > .oxd-text",
-    dashboardGrid: ".orangehrm-dashboard-grid",
-    wrongCredentialAlert: "[role='alert']",
-    myInfoButton: '[href="/web/index.php/pim/viewMyDetails"]',
     firstNameField: "[name='firstName']",
     lastNameField: "[name='lastName']",
     genericField: ".oxd-input--active",
     dateField: "[placeholder='yyyy-mm-dd']",
     dateCloseButton: ".--close",
-    submitButton: "[type='submit']"
+    submitButton: "[type='submit']",
+    genericSelect: ".oxd-select-text--arrow"
   }
   
   it.only('User Info Update - Success', () => {
-    cy.visit("/auth/login")
-    cy.get(selectorList.usernameField).type(userData.usernameSuccess.username)
-    cy.get(selectorList.passwordField).type(userData.usernameSuccess.password)
-    cy.get(selectorList.loginButton).click()
-    cy.location('pathname').should('equal','/web/index.php/dashboard/index')
-    cy.get(selectorList.dashboardGrid)
-    cy.get(selectorList.myInfoButton).click()
+    LoginPage.accessLoginPage();
+    LoginPage.loginWithUser(userData.usernameSuccess.username,userData.usernameSuccess.password)
+    DashboardPage.checkDashboardPage();
+    MenuPage.accessMyInfo();
     cy.get(selectorList.firstNameField).clear().type("FirstNameTest")
     cy.get(selectorList.lastNameField).clear().type("LastNameTest")
     //cy.get(selectorList.genericField).eq().clear().type("NickNameTest")
@@ -36,6 +30,15 @@ describe('Orange HRM Tests', () => {
     cy.get(selectorList.dateCloseButton).click()
     cy.get(selectorList.submitButton).eq(0).click()
     cy.get('body').should('contain','Successfully Updated')
+    cy.get(selectorList.genericSelect).eq(0).click()
+    cy.get('[role="listbox"]').should('be.visible').within(() => {
+      cy.contains('[role="option"]','Brazilian').click()
+    }) 
+    cy.get(selectorList.genericSelect).eq(1).click()
+    cy.get('[role="listbox"]').should('be.visible').within(() => {
+      cy.contains('[role="option"]','Married').click()
+    })
+
     //cy.get(selectorList.genericField).eq(8).clear().type("sinNumberTest")
 
   })
